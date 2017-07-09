@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Node.js Login</title>
+    <link rel="stylesheet" href="/vendor/bootstrap.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/github-fork-ribbon-css/0.1.1/gh-fork-ribbon.min.css">
+    <link rel="stylesheet" href="node_modules/material-components-web/dist/material-components-web.css">
+  </head>
+  <body>
+    <div id="set-password" class="modal show">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4>Reset Password</h4>
+          </div>
+          <div class="modal-body">
+            <form method="post" id="set-password-form" class="well">
+              <div class="form-group">
+                <label>Please enter your new password</label>
+                <input type="password" name="pass" id="pass-tf" class="form-control required">
+                <div class="alert alert-danger hide"></div>
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button type="submit" form="set-password-form" id="set-password-submit" class="btn btn-primary">Submit</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script src="/vendor/jquery-2.2.3.min.js"></script>
+    <script src="/vendor/jquery.form.min.js"></script>
+    <script src="/vendor/bootstrap.min.js"></script>
+    <script src="/js/views/reset.js"></script>
+    <script src="/js/form-validators/resetValidator.js"></script>
+  </body>
+</html>
