@@ -1,0 +1,44 @@
+var status = true;
+setInterval(alwayLoop, 2000);
+
+function alwayLoop() {
+  console.log("looping");
+
+  if (status) {
+    status = false;
+
+    fps.isPressFinger().then(function() {
+      console.log('isPressFinger: pressed!');
+
+      fps.captureFinger(0)
+        .then(function() {
+
+
+          //blink LED
+          fps.ledONOFF(0);
+          setTimeout(function() {
+            fps.ledONOFF(1);
+          }, 100)
+
+          return fps.identify();
+
+        })
+        .then(function(ID) {
+          console.log("identify: ID = " + ID);
+
+        }, function(err) {
+          console.log("identify err: " + fps.decodeError(err));
+
+        });
+        setTimeout(function() {
+          var status = true;
+        }, 1000)
+
+
+    }, function(err) {
+      console.log('isPressFinger err: ' + fps.decodeError(err));
+      setTimeout(function() {
+        var status = true;
+      }, 1000)
+    });
+  }
