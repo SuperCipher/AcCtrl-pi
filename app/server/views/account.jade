@@ -10,6 +10,11 @@ input(type='hidden', value= user._id)#userId
 		h6#sub1 Please tell us a little about yourself.
 		hr
 		.form-group
+			label.control-label.col-sm-3 ID
+			.col-sm-9
+				//- set value for ajax from
+				input.form-control#id-tf(type='text', name='id', value= user.id)
+		.form-group
 			label.control-label.col-sm-3 Name
 			.col-sm-9
 				//- set value for ajax from

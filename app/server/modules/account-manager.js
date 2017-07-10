@@ -71,19 +71,25 @@ exports.manualLogin = function(user, pass, callback)
 
 exports.addNewAccount = function(newData, callback)
 {
-	accounts.findOne({user:newData.user}, function(e, o) {
+	accounts.findOne({id:newData.id}, function(e, o) {
 		if (o){
-			callback('username-taken');
+			callback('id-taken');
 		}	else{
-			accounts.findOne({email:newData.email}, function(e, o) {
+			accounts.findOne({user:newData.user}, function(e, o) {
 				if (o){
-					callback('email-taken');
+					callback('username-taken');
 				}	else{
-					saltAndHash(newData.pass, function(hash){
-						newData.pass = hash;
-					// append date stamp when record was created //
-						newData.date = moment().format('MMMM Do YYYY, h:mm:ss a');
-						accounts.insert(newData, {safe: true}, callback);
+					accounts.findOne({email:newData.email}, function(e, o) {
+						if (o){
+							callback('email-taken');
+						}	else{
+							saltAndHash(newData.pass, function(hash){
+								newData.pass = hash;
+								// append date stamp when record was created //
+								newData.date = moment().format('MMMM Do YYYY, h:mm:ss a');
+								accounts.insert(newData, {safe: true}, callback);
+							});
+						}
 					});
 				}
 			});
