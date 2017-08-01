@@ -8,20 +8,17 @@ var moment 		= require('moment');
 	ESTABLISH DATABASE CONNECTION
 */
 
-var dbName =  'sandbox_node';
-var dbHost =  'ds133221.mlab.com';
-var dbPort =  33221;
-var dbUser =  'heroku_addon';
-var dbPass =  'NaPatT3r';
-
+var dbName = process.env.DB_NAME || 'node-login';
+var dbHost = process.env.DB_HOST || 'localhost';
+var dbPort = process.env.DB_PORT || 27017;
 
 var db = new MongoDB(dbName, new Server(dbHost, dbPort, {auto_reconnect: true}), {w: 1});
 db.open(function(e, d){
 	if (e) {
 		console.log(e);
 	} else {
-		// if (process.env.NODE_ENV == 'production') {  //live => production
-			db.authenticate(dbUser, dbPass, function(e, res) {
+		if (process.env.NODE_ENV == 'live') {
+			db.authenticate(process.env.DB_USER, process.env.DB_PASS, function(e, res) {
 				if (e) {
 					console.log('mongo :: error: not authenticated', e);
 				}
@@ -29,18 +26,18 @@ db.open(function(e, d){
 					console.log('mongo :: authenticated and connected to database :: "'+dbName+'"');
 				}
 			});
-		// }	else{
-		// 	console.log('mongo :: connected to database :: "'+dbName+'"');
-		// }
+		}	else{
+			console.log('mongo :: connected to database :: "'+dbName+'"');
+		}
 	}
 });
-
 var accounts = db.collection('accounts');
 
 /* login validation methods */
 
 exports.autoLogin = function(user, pass, callback)
 {
+	// o == item
 	accounts.findOne({user:user}, function(e, o) {
 		if (o){
 			o.pass == pass ? callback(o) : callback(null);
@@ -58,8 +55,10 @@ exports.manualLogin = function(user, pass, callback)
 		}	else{
 			validatePassword(pass, o.pass, function(err, res) {
 				if (res){
+					// call back error = null return o
 					callback(null, o);
 				}	else{
+					// call back error
 					callback('invalid-password');
 				}
 			});
@@ -71,25 +70,19 @@ exports.manualLogin = function(user, pass, callback)
 
 exports.addNewAccount = function(newData, callback)
 {
-	accounts.findOne({id:newData.id}, function(e, o) {
+	accounts.findOne({user:newData.user}, function(e, o) {
 		if (o){
-			callback('id-taken');
+			callback('username-taken');
 		}	else{
-			accounts.findOne({user:newData.user}, function(e, o) {
+			accounts.findOne({email:newData.email}, function(e, o) {
 				if (o){
-					callback('username-taken');
+					callback('email-taken');
 				}	else{
-					accounts.findOne({email:newData.email}, function(e, o) {
-						if (o){
-							callback('email-taken');
-						}	else{
-							saltAndHash(newData.pass, function(hash){
-								newData.pass = hash;
-								// append date stamp when record was created //
-								newData.date = moment().format('MMMM Do YYYY, h:mm:ss a');
-								accounts.insert(newData, {safe: true}, callback);
-							});
-						}
+					saltAndHash(newData.pass, function(hash){
+						newData.pass = hash;
+					// append date stamp when record was created //
+						newData.date = moment().format('MMMM Do YYYY, h:mm:ss a');
+						accounts.insert(newData, {safe: true}, callback);
 					});
 				}
 			});

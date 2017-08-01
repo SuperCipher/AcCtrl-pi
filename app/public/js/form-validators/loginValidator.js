@@ -3,9 +3,10 @@ function LoginValidator()
 {
 // bind a simple alert window to this controller to display any errors //
 	this.loginErrors = $('.modal-alert');
-	
+
 	this.showLoginError = function(t, m)
 	{
+		// model alert from alert.jade
 		$('.modal-alert .modal-header h4').text(t);
 		$('.modal-alert .modal-body').html(m);
 		this.loginErrors.modal('show');
@@ -14,6 +15,7 @@ function LoginValidator()
 
 LoginValidator.prototype.validateForm = function()
 {
+	// check text field if emty show alert.jade
 	if ($('#user-tf').val() == ''){
 		this.showLoginError('Whoops!', 'Please enter a valid username');
 		return false;

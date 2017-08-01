@@ -18,7 +18,7 @@ var async = require('async');
 var fs = require('fs');
 
 var fps = new GT511C3('/dev/ttyAMA0', {
-	//baudrate: 115200
+	//baudrate: 115200,
 	//baudrate: 57600,
 	//baudrate: 38400,
 	//baudrate: 19200,
@@ -70,11 +70,25 @@ var IMAGE_PATH = './';
 // }
 
 var isInit = false;
+var state = true;
 
-var stdin = process.stdin;
-stdin.setRawMode(true);
-stdin.resume();
-stdin.setEncoding('utf8');
+function delay_ms(ms) {
+	return (new Promise(function(resolve, reject) {
+		setTimeout(resolve, ms);
+	}));
+}
+
+var ledON = function() {
+	return fps.ledONOFF(1);
+}
+var ledOFF = function() {
+	return fps.ledONOFF(0);
+}
+
+// var stdin = process.stdin;
+// stdin.setRawMode(true);
+// stdin.resume();
+// stdin.setEncoding('utf8');
 
 // printHelp();
 
@@ -356,115 +370,149 @@ stdin.setEncoding('utf8');
 // 		printHelp();
 // 	}
 // });
-stdin.on('data', function(key) {
-	if (key == '0') {
-		if (isInit) {
-			fps.ledONOFF(0);
-			fps.close().then(function() {
-				console.log('close OK!');
-				exit();
-			}, function(err) {
-				fps.ledONOFF(0);
-				console.log('close err: ' + fps.decodeError(err));
-				fps.closePort();
-				exit();
-			});
-		}
-	}
-});
+//
+// stdin.on('data', function(key) {
+// 	if (key == '0') {
+// 		if (isInit) {
+// 			fps.ledONOFF(0);
+// 			setTimeout(function() {
+// 				fps.close().then(function() {
+// 					console.log('close OK!');
+// 					exit();
+// 				}, function(err) {
+// 					fps.ledONOFF(0);
+// 					console.log('close err: ' + fps.decodeError(err));
+// 					fps.closePort();
+// 					exit();
+// 				});
+// 			}, 700)
+// 		}
+// 	}
+// });
+//
 
-fps.init().then(
-	function() {
+// fps.init().then(
+// exports.loopCheck = function() {
 
-		isInit = true;
-		console.log('init: OK!');
-		console.log('firmware version: ' + fps.firmwareVersion);
-		console.log('iso area max: ' + fps.isoAreaMaxSize);
-		console.log('device serial number: ' + fps.deviceSerialNumber);
 
-		fps.ledONOFF(1);
+	// isInit = true;
+	// console.log('init: OK!');
+	// console.log('firmware version: ' + fps.firmwareVersion);
+	// console.log('iso area max: ' + fps.isoAreaMaxSize);
+	// console.log('device serial number: ' + fps.deviceSerialNumber);
+	//
+	// fps.ledONOFF(1);
 
-		function delay_ms(ms) {
-			return (new Promise(function(resolve, reject) {
-				setTimeout(resolve, ms);
-			}));
-		}
 
-		function idenLoop() {
-			console.log("looping");
-			fps.isPressFinger().then(function() {
+
+	// var state = true;
+	exports.loopCheck = function idenLoop() {
+		console.log("looping");
+		if(state===true){
+			// state false immediately
+			state = false;
+			fps.isPressFinger()
+			// blink LED
+			.then(ledOFF)
+			.then(delay_ms(700))
+			.then(ledON)
+			//identification process
+			.then(function() {
 				console.log('isPressFinger: pressed!');
+
 				fps.captureFinger(0)
 				.then(function() {
-					//blink LED
-					fps.ledONOFF(0);
-					setTimeout(function() {
-						fps.ledONOFF(1);
-					}, 100)
 					return fps.identify();
 				})
 				.then(function(ID) {
 					console.log("identify: ID = " + ID);
+					// return ID;
+					setTimeout(function() {
+						state = true;
+					}, 4000)
 				}, function(err) {
 					console.log("identify err: " + fps.decodeError(err));
+					// return err;
+					setTimeout(function() {
+						state = true;
+					}, 4000)
 				});
 			}, function(err) {
 				console.log('isPressFinger err: ' + fps.decodeError(err));
+				state = true;
 			});
 		}
+	}
+	//start loop
+	// setTimeout(function() {
+	// 	var identi = setInterval(idenLoop, 700);
+	// }, 10000)
+// }
+		// var functionList = [];
+		// for (var i = 0; i < 200; i++) {
+		// 	var fun = function(ID) {
+		// 		return function check(callback) {
+		// 			fps.checkEnrolled(ID).then(function() {
+		// 				callback(null, true);
+		// 			}, function(err) {
+		// 				if (err == fps.NACK_IS_NOT_USED) {
+		// 					callback(null, false);
+		// 				} else {
+		// 					callback(fps.decodeError(err));
+		// 				}
+		// 			});
+		// 		};
+		// 	};
+		// 	functionList.push(fun(i));
+		// }
+		// fps.getEnrollCount().then(function(count) {
+		// 	console.log('getEnrollCount count: ' + count);
+		// 	// print results
+		// 	async.series(functionList,
+		// 		function(err, results) {
+		// 			if (err) {
+		// 				console.log('checkEnrolled list error: ' + fps.decodeError(err));
+		// 			} else {
+		// 				for (var i = 0; i < results.length; i++)
+		// 				console.log('[' + i + '] ' + (results[i] ? 'USED' : 'EMPTY'));
+		// 			}
+		// 		});
+		// 	}, function(err) {
+		// 		console.log('getEnrollCount error: ' + fps.decodeError(err));
+		// 	});
 
-		var functionList = [];
-		for (var i = 0; i < 200; i++) {
-			var fun = function(ID) {
-				return function check(callback) {
-					fps.checkEnrolled(ID).then(function() {
-						callback(null, true);
-					}, function(err) {
-						if (err == fps.NACK_IS_NOT_USED) {
-							callback(null, false);
-						} else {
-							callback(fps.decodeError(err));
-						}
-					});
-				};
-			};
-			functionList.push(fun(i));
-		}
-		fps.getEnrollCount().then(function(count) {
-			console.log('getEnrollCount count: ' + count);
-			// print results
-			async.series(functionList,
-				function(err, results) {
-					if (err) {
-						console.log('checkEnrolled list error: ' + fps.decodeError(err));
-					} else {
-						for (var i = 0; i < results.length; i++)
-						console.log('[' + i + '] ' + (results[i] ? 'USED' : 'EMPTY'));
-					}
-				});
-			}, function(err) {
-				console.log('getEnrollCount error: ' + fps.decodeError(err));
-			});
-
-			setTimeout(function() {
-				var identi = setInterval(idenLoop, 700);
-			}, 10000)
-
-
-
-
-
-
-
-
+// delay for loop finger search
+			// setTimeout(function() {
+			// 	var identi = setInterval(idenLoop, 700);
+			// }, 10000)
 
 
 
 
 
+
+	// 	},
+	// 	function(err) {
+	// 		console.log('init err: ' + fps.decodeError(err));
+	// 		fps.ledONOFF(0);
+	// 	}
+	// );
+
+exports.fpsInitiate = function () {
+
+	fps.init().then(
+		function() {
+
+			isInit = true;
+			console.log('init: OK!');
+			console.log('firmware version: ' + fps.firmwareVersion);
+			console.log('iso area max: ' + fps.isoAreaMaxSize);
+			console.log('device serial number: ' + fps.deviceSerialNumber);
+			fps.ledONOFF(1);
 		},
 		function(err) {
 			console.log('init err: ' + fps.decodeError(err));
 			fps.ledONOFF(0);
 		}
 	);
+}

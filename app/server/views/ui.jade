@@ -1,0 +1,30 @@
+doctype html
+//
+  To change this license header, choose License Headers in Project Properties.
+  To change this template file, choose Tools | Templates
+  and open the template in the editor.
+html
+  head
+    title R pi
+    meta(charset='UTF-8')
+    meta(name='viewport', content='width=device-width, initial-scale=1.0')
+    link(href='/css/burger.css', rel='stylesheet', type='text/css')
+  body
+    input#menu-toggle(type='checkbox')
+    label(for='menu-toggle')
+    ul#menu
+      li
+        a(href='#') Home
+      li
+        a(href='#') About
+      li
+        a(href='#') Portfolio
+      li
+        a(href='#') Contact
+    aside
+      h1 Raspberry pi
+      h4 inspired by
+      h3 Google Material Design
+      
+      //- include ui.js
+      script(src='/js/views/ui.js')

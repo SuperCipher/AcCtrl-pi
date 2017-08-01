@@ -1,15 +1,20 @@
-
+// this is dedicate to bind event listeners to button clicks only //
 function LoginController()
 {
-// bind event listeners to button clicks //
-	$('#retrieve-password-submit').click(function(){ $('#get-credentials-form').submit();});
-	$('#login #forgot-password').click(function(){ 
+	//retrive password button
+	$('#retrieve-password-submit').click(function(){
+		 $('#get-credentials-form').submit();
+	});
+	//forgot password button
+	$('#login #forgot-password').click(function(){
 		$('#cancel').html('Cancel');
 		$('#retrieve-password-submit').show();
 		$('#get-credentials').modal('show');
 	});
+	//remember-me button
 	$('#login .button-rememember-me').click(function(e) {
 		var span = $(this).find('span');
+		//show or remove check box
 		if (span.hasClass('glyphicon-unchecked')){
 			span.addClass('glyphicon-ok');
 			span.removeClass('glyphicon-unchecked');

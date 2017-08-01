@@ -2,6 +2,10 @@
 // var CT = require('./modules/country-list');
 var AM = require('./modules/account-manager');
 var EM = require('./modules/email-dispatcher');
+var FPS = require('./modules/fps');
+
+// req = request
+// res = respond
 
 module.exports = function(app) {
 
@@ -17,22 +21,28 @@ module.exports = function(app) {
 				    req.session.user = o;
 					res.redirect('/home');
 				}	else{
+					// No cookie found
 					res.render('login', { title: 'Hello - Please Login To Your Account' });
 				}
 			});
 		}
 	});
 
+	// Manual login
 	app.post('/', function(req, res){
 		AM.manualLogin(req.body['user'], req.body['pass'], function(e, o){
 			if (!o){
+				//login failed, send error
 				res.status(400).send(e);
 			}	else{
+				// add session
 				req.session.user = o;
 				if (req.body['remember-me'] == 'true'){
+					// added cookie
 					res.cookie('user', o.user, { maxAge: 900000 });
 					res.cookie('pass', o.pass, { maxAge: 900000 });
 				}
+				// login sucess code sent
 				res.status(200).send(o);
 			}
 		});
@@ -94,7 +104,6 @@ module.exports = function(app) {
 
 	app.post('/signup', function(req, res){
 		AM.addNewAccount({
-			id : req.body['id'],
 			name 	: req.body['name'],
 			email 	: req.body['email'],
 			user 	: req.body['user'],
@@ -109,21 +118,36 @@ module.exports = function(app) {
 		});
 	});
 
-	// app.post('/addUser', function(req, res){
-	// 	AM.addNewAccount({
-	// 		name 	: req.body['name'],
-	// 		email 	: req.body['email'],
-	// 		user 	: req.body['user'],
-	// 		pass	: req.body['pass'],
-	// 		// country : req.body['country']
-	// 	}, function(e){
-	// 		if (e){
-	// 			res.status(400).send(e);
-	// 		}	else{
-	// 			res.status(200).send('ok');
-	// 		}
-	// 	});
-	// });
+	app.get('/ui', function(req, res) {
+		res.render('ui');
+
+
+
+
+		// FPS.fpsInitiate();
+		// FPS.loopCheck();
+		// wait for serial initiate
+
+		// setTimeout(function() {
+		//
+		// 	var identi = setInterval(FPS.loopCheck, 700);
+		//
+		// }, 500)
+
+
+	});
+
+
+	app.post('/ui', function(req, res) {
+		res.render('ui');
+
+		setTimeout(function() {
+
+			res.send('success');
+
+		}, 800)
+
+	});
 
 // password reset //
 //
@@ -147,34 +171,34 @@ module.exports = function(app) {
 // 		});
 // 	});
 
-	// app.get('/reset-password', function(req, res) {
-	// 	var email = req.query["e"];
-	// 	var passH = req.query["p"];
-	// 	AM.validateResetLink(email, passH, function(e){
-	// 		if (e != 'ok'){
-	// 			res.redirect('/');
-	// 		} else{
-	// // save the user's email in a session instead of sending to the client //
-	// 			req.session.reset = { email:email, passHash:passH };
-	// 			res.render('reset', { title : 'Reset Password' });
-	// 		}
-	// 	})
-	// });
-	//
-	// app.post('/reset-password', function(req, res) {
-	// 	var nPass = req.body['pass'];
-	// // retrieve the user's email from the session to lookup their account and reset password //
-	// 	var email = req.session.reset.email;
-	// // destory the session immediately after retrieving the stored email //
-	// 	req.session.destroy();
-	// 	AM.updatePassword(email, nPass, function(e, o){
-	// 		if (o){
-	// 			res.status(200).send('ok');
-	// 		}	else{
-	// 			res.status(400).send('unable to update password');
-	// 		}
-	// 	})
-	// });
+	app.get('/reset-password', function(req, res) {
+		var email = req.query["e"];
+		var passH = req.query["p"];
+		AM.validateResetLink(email, passH, function(e){
+			if (e != 'ok'){
+				res.redirect('/');
+			} else{
+	// save the user's email in a session instead of sending to the client //
+				req.session.reset = { email:email, passHash:passH };
+				res.render('reset', { title : 'Reset Password' });
+			}
+		})
+	});
+
+	app.post('/reset-password', function(req, res) {
+		var nPass = req.body['pass'];
+	// retrieve the user's email from the session to lookup their account and reset password //
+		var email = req.session.reset.email;
+	// destory the session immediately after retrieving the stored email //
+		req.session.destroy();
+		AM.updatePassword(email, nPass, function(e, o){
+			if (o){
+				res.status(200).send('ok');
+			}	else{
+				res.status(400).send('unable to update password');
+			}
+		})
+	});
 
 // view & delete accounts //
 
