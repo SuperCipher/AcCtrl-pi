@@ -23,6 +23,7 @@
     "material-components-web": "^0.14.0",
     "moment": "2.10.3",
     "mongodb": "2.0.45",
+    "socket.io": "^2.0.3",
     "stylus": "0.52.4"
   },
   "engines": {

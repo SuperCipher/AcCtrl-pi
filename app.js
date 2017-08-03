@@ -49,8 +49,18 @@ app.use(session({
 
 require('./app/server/routes')(app);
 
-
-
-http.createServer(app).listen(app.get('port'), function(){
+var server = http.createServer(app).listen(app.get('port'), function(){
 	console.log('Express server listening on port ' + app.get('port'));
 });
+
+var io = require('socket.io')(server);
+
+io.on('connection', function (socket) {
+  socket.emit('Identification', "IdentifySucess");
+  socket.on('respond', function (data) {
+    console.log(data);
+  });
+});
+
+
+// require('./app/server/fpsSocket')(http);

@@ -26,5 +26,9 @@ html
       h4 inspired by
       h3 Google Material Design
       
-      //- include ui.js
+      //- include all necessary dependency first
+      script(src='/vendor/jquery-2.2.3.min.js')
+      script(src='/vendor/jquery.form.min.js')
+      script(src='/socket.io/socket.io.js')
+      //- then load .js
       script(src='/js/views/ui.js')
